@@ -9,6 +9,37 @@ import Logs from '../services/logs.js'
 dotenv.config();
 const prisma = new PrismaClient()
 
+const getSuperUser = async (req, res) => {
+    Logs("getSuperUser")
+    const { email, password } = req.body;
+    const user = await prisma.user.findMany()
+    //Não existe usuários?
+    Logs('users ' + user.length)
+    if (user.length == 0) {
+        // Criar Primeiro Usuario
+        const hash = hashPassword(req.body.password)
+        const createUser = await prisma.user.create({
+            data: {
+                email: req.body.email,
+                name: req.body.name,
+                password: hash
+            }
+        })
+        // Criar JTW de imediato
+        let data = {
+            id: req.body.email,
+            email: req.body.name,
+            password: req.body.password
+        }
+        // expiresIn reduzido 15 minutos
+        const jwt_token = jwt.sign(data, process.env.JWT_SECRET_KEY, { algorithm: 'HS512', expiresIn: "15m" });
+        resposta_json(200, res, "POST Create SUser Authorized", { accessToken: jwt_token });
+    }
+    else {
+        resposta_json(401, res, "POST Create SUser Unauthorized", { error: "user not authorized", });
+    }
+};
+
 const postCadastro = async (req, res) => {
     Logs("postCadastro")
     try {
@@ -83,4 +114,4 @@ const updateCadastro = async (req, res) => {
     }
 };
 
-export { postCadastro, getLogin, getCadastros, updateCadastro };
+export { postCadastro, getLogin, getCadastros, updateCadastro, getSuperUser };

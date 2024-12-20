@@ -1,8 +1,10 @@
 import express from "express";
-import { postCadastro, getLogin, getCadastros, updateCadastro } from "../../controllers/cadastro.js";
+import { postCadastro, getLogin, getCadastros, updateCadastro, getSuperUser } from "../../controllers/cadastro.js";
 import isAuthorized from '../../middleware/auth.js'
 
 const router = express.Router();
+
+router.post("/createsuperuser", getSuperUser);
 
 router.post("/login", getLogin);
 
