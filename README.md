@@ -10,8 +10,9 @@ node install
 ```
 
 Para rodar o projecto
+(rodar server em mode 'dev nodemon' porta 3000)
 ```
-npm run dev (rodar server em mode 'dev nodemon' porta 3000)
+npm run dev
 ```
 
 abre outro terminal :
