@@ -1,4 +1,4 @@
-# api.marioantunes.pt
+# api.dominio.com
 
 Exemplo simples de API RESTful - NodeJS - Express - JWT - Prisma - MongoDB
 
