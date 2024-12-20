@@ -15,9 +15,9 @@ Para rodar o projecto
 npm run dev
 ```
 
-abre outro terminal :
+abre outro terminal (rodar o studio para a base de dados, porta 5556):
 ```
-npx prima studio (rodar o studio para a base de dados, porta 5556)
+npx prima studio
 ```
 
 ## schema.prisma
