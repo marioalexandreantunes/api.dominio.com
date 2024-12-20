@@ -2,6 +2,23 @@
 
 Exemplo simples de API RESTful - NodeJS - Express - JWT - Prisma - MongoDB
 
+## schema.prisma
+
+para subir o esquema/model USER
+```
+npx prisma db push 
+```
+
+instalar o cliente que vamos usar no projecto
+```
+npm install @prisma/client
+```
+
+Opcional - para manipular a base de dados (rodar o studio para a base de dados, porta 5556):
+```
+npx prima studio
+```
+
 ## server.js
 
 Instalar as dependencias
@@ -15,24 +32,7 @@ Para rodar o projecto
 npm run dev
 ```
 
-abre outro terminal (rodar o studio para a base de dados, porta 5556):
-```
-npx prima studio
-```
-
-## schema.prisma
-
-para subir o esquema/model USER
-```
-npx prisma db push 
-```
-
-instalar o cliente que vamos usar no server.js
-```
-npm install @prisma/client
-```
-
-para manipular a base de dados
+Opcional - abre outro terminal (rodar o studio para a base de dados, porta 5556):
 ```
 npx prima studio
 ```
