@@ -2,6 +2,8 @@ import express from "express";
 import { PrismaClient } from '@prisma/client'
 import v1Router from './v1/routes/cadastro.js';
 import helmet from 'helmet'
+import swaggerUi from 'swagger-ui-express'
+import specs from './swagger.js'
 import rateLimit from 'express-rate-limit'
 import cors from 'cors'
 import expressSanitizer from 'express-sanitizer'
@@ -81,8 +83,20 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Configuração do Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 // Configurações de Segurança com Helmet
 app.use(helmet({
+    // Permitir que o Swagger UI seja carregado corretamente
+    contentSecurityPolicy: {
+        directives: {
+            ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+            "img-src": ["'self'", "data:", "https:"],
+            "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            "style-src": ["'self'", "'unsafe-inline'"]
+        }
+    },
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
