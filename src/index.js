@@ -4,6 +4,7 @@ import v1Router from './v1/routes/cadastro.js';
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import cors from 'cors'
+import expressSanitizer from 'express-sanitizer'
 
 // prisma
 const prisma = new PrismaClient()
@@ -23,7 +24,7 @@ const limiter = rateLimit({
 // Configuração do rate limiter específico para API
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 3, // Limite mais restrito para rotas da API
+    max: 10, // Limite mais restrito para rotas da API
     message: {
         status: 429,
         message: "Limite de requisições da API excedido, por favor tente novamente após 15 minutos"
@@ -32,6 +33,43 @@ const apiLimiter = rateLimit({
 
 // middleware body parse funcionar
 app.use(express.json());
+app.use(expressSanitizer());
+
+// Middleware para sanitizar todos os inputs
+app.use((req, res, next) => {
+    if (req.body) {
+        // Sanitiza recursivamente todos os campos do body
+        const sanitizeObj = (obj) => {
+            for (let key in obj) {
+                if (typeof obj[key] === 'string') {
+                    obj[key] = req.sanitize(obj[key]);
+                } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    sanitizeObj(obj[key]);
+                }
+            }
+        };
+        sanitizeObj(req.body);
+    }
+
+    if (req.query) {
+        // Sanitiza parâmetros da query
+        for (let key in req.query) {
+            if (typeof req.query[key] === 'string') {
+                req.query[key] = req.sanitize(req.query[key]);
+            }
+        }
+    }
+
+    if (req.params) {
+        // Sanitiza parâmetros da URL
+        for (let key in req.params) {
+            if (typeof req.params[key] === 'string') {
+                req.params[key] = req.sanitize(req.params[key]);
+            }
+        }
+    }
+    next();
+});
 
 // Configuração CORS
 const corsOptions = {

@@ -5,13 +5,45 @@ import dotenv from 'dotenv'
 import { resposta_json } from '../services/json.js'
 import { hashPassword, matchPassword } from '../services/crypto.js'
 import Logs from '../services/logs.js'
+import validator from 'validator'
 
 dotenv.config();
 const prisma = new PrismaClient()
 
+// Função de validação de dados
+const validateUserData = (data) => {
+    const errors = [];
+    
+    // Validação de email
+    if (!validator.isEmail(data.email)) {
+        errors.push('Email inválido');
+    }
+    
+    // Validação de senha
+    if (!validator.isLength(data.password, { min: 8 })) {
+        errors.push('A senha deve ter no mínimo 8 caracteres');
+    }
+    
+    // Validação de nome
+    if (!validator.isLength(data.name, { min: 2, max: 50 })) {
+        errors.push('O nome deve ter entre 2 e 50 caracteres');
+    }
+    if (!validator.matches(data.name, /^[a-zA-ZÀ-ÿ\s]*$/)) {
+        errors.push('O nome deve conter apenas letras e espaços');
+    }
+    
+    return errors;
+};
+
 const getSuperUser = async (req, res) => {
     Logs("getSuperUser")
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
+    
+    // Validação dos dados
+    const validationErrors = validateUserData({ email, password, name });
+    if (validationErrors.length > 0) {
+        return resposta_json(400, res, "Dados inválidos", { errors: validationErrors });
+    }
     const user = await prisma.user.findMany()
     //Não existe usuários?
     Logs('users ' + user.length)
@@ -43,6 +75,11 @@ const getSuperUser = async (req, res) => {
 const postCadastro = async (req, res) => {
     Logs("postCadastro")
     try {
+        // Validação dos dados
+        const validationErrors = validateUserData(req.body);
+        if (validationErrors.length > 0) {
+            return resposta_json(400, res, "Dados inválidos", { errors: validationErrors });
+        }
         const hash = hashPassword(req.body.password)
         const createUser = await prisma.user.create({
             data: {
@@ -61,6 +98,15 @@ const postCadastro = async (req, res) => {
 const getLogin = async (req, res) => {
     Logs("getLogin")
     const { email, password } = req.body;
+    
+    // Validação básica de login
+    if (!validator.isEmail(email)) {
+        return resposta_json(400, res, "Email inválido", { error: "Formato de email inválido" });
+    }
+    
+    if (!validator.isLength(password, { min: 8 })) {
+        return resposta_json(400, res, "Senha inválida", { error: "Senha deve ter no mínimo 8 caracteres" });
+    }
     const user = await prisma.user.findUnique({
         where: {
             email: email,
@@ -97,6 +143,15 @@ const getCadastros = async (req, res) => {
 const updateCadastro = async (req, res) => {
     Logs("updateCadastro")
     try {
+        // Validação dos dados de atualização
+        const validationErrors = validateUserData({
+            email: req.body.email || 'dummy@dummy.com', // Se email não for atualizado
+            password: req.body.password,
+            name: req.body.name
+        });
+        if (validationErrors.length > 0) {
+            return resposta_json(400, res, "Dados inválidos", { errors: validationErrors });
+        }
         const hash = hashPassword(req.body.password)
         const UpdateUser = await prisma.user.update({
             where: {
