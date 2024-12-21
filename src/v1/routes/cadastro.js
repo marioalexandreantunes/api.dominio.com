@@ -1,6 +1,7 @@
 import express from "express";
 import { postCadastro, getLogin, getCadastros, updateCadastro, getSuperUser } from "../../controllers/cadastro.js";
 import isAuthorized from '../../middleware/auth.js'
+import { loginLimiter } from '../../middleware/rateLimiter.js';
 
 /**
  * @swagger
@@ -79,6 +80,7 @@ router.post("/createsuperuser", getSuperUser);
  * /api/v1/login:
  *   post:
  *     summary: Autenticar usuário
+ *     description: Limitado a 5 tentativas por IP a cada 15 minutos
  *     tags: [Autenticação]
  *     requestBody:
  *       required: true
@@ -98,8 +100,10 @@ router.post("/createsuperuser", getSuperUser);
  *                   type: string
  *       401:
  *         description: Credenciais inválidas
+ *       429:
+ *         description: Demasiadas tentativas de login. Por favor, tente novamente mais tarde.
  */
-router.post("/login", getLogin);
+router.post("/login", loginLimiter, getLogin);
 
 /**
  * @swagger
