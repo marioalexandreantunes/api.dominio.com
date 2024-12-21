@@ -36,3 +36,24 @@ Opcional - abre outro terminal (rodar o studio para a base de dados, porta 5556)
 ```
 npx prima studio
 ```
+
+
+## Segurança
+
+A API implementa várias medidas de segurança robustas:
+
+### Implementado ✓
+- Autenticação JWT com middleware de autorização
+- Proteção contra ataques usando Helmet.js
+- Rate Limiting (100 req/15min global, 10 req/15min API)
+- Rate limiting específico para login
+- Sanitização de inputs (body, query, URL params)
+- Gestão segura de senhas com crypto (salt único + scrypt)
+- CORS configurado com origens específicas
+
+### Melhorias Recomendadas !
+- Implementar refresh tokens e expiração JWT
+- Adicionar validação de força de senha
+- Implementar verificação de email
+- Melhorar sistema de logging e monitoramento
+- Implementar backup automático de dados
