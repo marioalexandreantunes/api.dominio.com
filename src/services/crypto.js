@@ -1,20 +1,22 @@
-import { randomBytes, scryptSync } from 'crypto';
+import bcrypt from 'bcrypt';
 
-const encryptPassword = (password, salt) => {
-    return scryptSync(password, salt, 32).toString('hex');
-};
-
+/**
+ * Encripta a palavra-passe utilizando bcrypt.
+ * @param {string} password - A palavra-passe a ser encriptada
+ * @returns {string} - Hash da palavra-passe
+ */
 export const hashPassword = (password) => {
-    // Any random string here (ideally should be at least 16 bytes)
-    const salt = randomBytes(16).toString('hex');
-    return encryptPassword(password, salt) + salt;
+    // Usando 12 rounds como padrão para manter compatibilidade com Python
+    const salt = bcrypt.genSaltSync(12);
+    return bcrypt.hashSync(password, salt);
 };
 
+/**
+ * Verifica se uma palavra-passe corresponde ao hash armazenado.
+ * @param {string} password - A palavra-passe a verificar
+ * @param {string} hash - O hash armazenado
+ * @returns {boolean} - true se a palavra-passe corresponde ao hash, false caso contrário
+ */
 export const matchPassword = (password, hash) => {
-    // extract salt from the hashed string
-    // our hex password length is 32*2 = 64
-    const salt = hash.slice(64);
-    const originalPassHash = hash.slice(0, 64);
-    const currentPassHash = encryptPassword(password, salt);
-    return originalPassHash === currentPassHash;
+    return bcrypt.compareSync(password, hash);
 };
